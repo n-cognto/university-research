@@ -9,10 +9,33 @@ body {
     background-color: white; /* White background */
     padding: 10px 0;
     border-bottom: 3px solid black; /* Optional: slight bottom border */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.custom-navbar .navbar-brand {
+    display: flex;
+    align-items: center;
+    padding-left: 15px;
 }
 
 .custom-navbar .navbar-brand img {
     height: 50px; /* Match logo size */
+}
+
+/* Navigation links */
+.custom-navbar .navbar-nav {
+    display: flex;
+    align-items: center;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.custom-navbar .navbar-nav .nav-item {
+    display: flex;
+    align-items: center;
 }
 
 .custom-navbar .navbar-nav .nav-link {
@@ -21,23 +44,60 @@ body {
     color: #0d7a00;
     text-transform: uppercase;
     margin: 0 15px; /* Space between items */
+    text-decoration: none;
+    padding: 10px 0;
 }
 
 .custom-navbar .navbar-nav .nav-link:hover {
     color: #0345BF; /* Hover effect */
 }
+
 /* Enable dropdown on hover */
 .nav-item.dropdown:hover .dropdown-menu {
     display: block;
 }
 
+/* Login button styling */
+.login-btn {
+    background-color: green; /* Default green background */
+    color: white !important; /* White text */
+    padding: 8px 20px;
+    border: none;
+    border-radius: 10px; /* Rounded corners */
+    font-size: 14px;
+    font-weight: bold;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 40px; 
+    margin-left: 50px;
+    transition: background-color 0.3s ease, transform 0.2s;
+}
+
+.login-btn:hover {
+    background-color: #001F3F;
+    transform: scale(1.05);
+}
+
 /* Mobile Navbar */
 @media (max-width: 991px) {
+    .custom-navbar {
+        flex-direction: column;
+        align-items: center;
+    }
+
     .custom-navbar .navbar-nav {
+        flex-direction: column;
         text-align: center;
     }
+
     .custom-navbar .navbar-nav .nav-link {
         margin: 10px 0;
+    }
+
+    .login-btn {
+        margin-top: 10px;
     }
 }
 
@@ -70,11 +130,7 @@ body {
     text-shadow: 2px 2px 5px rgba(0,0,0,0.7);
 }
 
-
-
-
-
-/*News SEction*/
+/* News Section */
 .recent-news {
     padding: 20px 0;
 }
@@ -117,10 +173,7 @@ body {
     text-transform: uppercase;
 }
 
-
-
-
-/*Projects Section*/
+/* Projects Section */
 .latest-projects {
     padding: 50px 0;
 }
@@ -170,11 +223,7 @@ body {
     color: #666;
 }
 
-
-
-
-
-/*Footer Section*/
+/* Footer Section */
 footer a {
     text-decoration: none;
 }
