@@ -3,6 +3,7 @@ body {
     margin: 0;
     padding: 0;
 }
+
 /* Custom Navbar */
 .custom-navbar {
     background-color: white; /* White background */
@@ -26,6 +27,7 @@ body {
     color: #FF6600; /* Hover effect */
 }
 
+/* Mobile Navbar */
 @media (max-width: 991px) {
     .custom-navbar .navbar-nav {
         text-align: center;
@@ -35,12 +37,23 @@ body {
     }
 }
 
-
+/* Carousel Styles */
 .carousel-item img {
-    height: 600px;  /* Adjust based on design */
-    object-fit: cover;
+    height: 500px; /* Adjust height */
+    object-fit: cover; /* Ensures images fill area properly */
 }
 
+/* Enable Fade Effect */
+.carousel-item {
+    transition: opacity 1s ease-in-out;
+    opacity: 0;
+}
+
+.carousel-item.active {
+    opacity: 1;
+}
+
+/* Caption Styling */
 .carousel-caption {
     bottom: 50px;
     text-align: center;
@@ -51,24 +64,4 @@ body {
     color: white;
     font-weight: bold;
     text-shadow: 2px 2px 5px rgba(0,0,0,0.7);
-}
-
-.carousel-item img {
-    height: 500px; /* Adjust to your preference */
-    object-fit: cover; /* Ensure images scale properly */
-}
-
-
-.slider {
-    width: 100%;
-    height: 500px;
-    position: relative;
-    overflow: hidden;
-}
-
-.slides img {
-    width: 100%;
-    height: 500px;
-    object-fit: cover;
-    display: none;
 }
