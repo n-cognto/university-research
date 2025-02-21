@@ -1,0 +1,21 @@
+Metadata-Version: 2.1
+Name: packages
+Version: 0.1.1
+Summary: 
+License: MIT
+Author: Chris Hunt
+Author-email: chrahunt@gmail.com
+Requires-Python: >=3.8,<4.0
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Requires-Dist: cached_property (>=1.5.1,<2.0.0)
+Requires-Dist: click (>=7.0,<8.0)
+Requires-Dist: lxml (>=4.4.2,<5.0.0)
+Requires-Dist: pymongo (>=3.10.0,<4.0.0)
+Requires-Dist: redis (>=3.3.11,<4.0.0)
+Requires-Dist: requests (>=2.22.0,<3.0.0)
+Requires-Dist: requests-cache (>=0.5.2,<0.6.0)
+Requires-Dist: tqdm (>=4.40.2,<5.0.0)

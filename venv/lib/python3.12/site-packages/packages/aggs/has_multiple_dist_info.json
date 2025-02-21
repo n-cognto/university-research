@@ -1,0 +1,62 @@
+[
+    {
+        "$unwind": {
+            "path": "$files", 
+            "preserveNullAndEmptyArrays": false
+        }
+    }, {
+        "$match": {
+            "files": {
+                "$regex": "^[^/]+\\.dist-info/"
+            }
+        }
+    }, {
+        "$addFields": {
+            "folder": {
+                "$let": {
+                    "vars": {
+                        "parts": {
+                            "$split": [
+                                "$files", "/"
+                            ]
+                        }
+                    }, 
+                    "in": {
+                        "$arrayElemAt": [
+                            "$$parts", 0
+                        ]
+                    }
+                }
+            }
+        }
+    }, {
+        "$group": {
+            "_id": "$url", 
+            "folders": {
+                "$push": "$folder"
+            }
+        }
+    }, {
+        "$addFields": {
+            "folders": {
+                "$setIntersection": [
+                    "$folders"
+                ]
+            }
+        }
+    }, {
+        "$addFields": {
+            "folder_size": {
+                "$size": "$folders"
+            }
+        }
+    }, {
+        "$match": {
+            "folder_size": {
+                "$not": {
+                    "$eq": 1
+                }
+            }
+        }
+    }
+]

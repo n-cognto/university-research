@@ -1,0 +1,3 @@
+[console_scripts]
+packages=packages.cli:cli
+

@@ -1,0 +1,70 @@
+[
+    {
+        "$addFields": {
+            "filename": {
+                "$split": [
+                    "$url", "/"
+                ]
+            }
+        }
+    }, {
+        "$addFields": {
+            "filename": {
+                "$arrayElemAt": [
+                    "$filename", -1
+                ]
+            }
+        }
+    }, {
+        "$addFields": {
+            "name_parts": {
+                "$split": [
+                    "$filename", "-"
+                ]
+            }
+        }
+    }, {
+        "$addFields": {
+            "distribution": {
+                "$arrayElemAt": [
+                    "$name_parts", 0
+                ]
+            }, 
+            "version": {
+                "$arrayElemAt": [
+                    "$name_parts", 1
+                ]
+            }
+        }
+    }, {
+        "$addFields": {
+            "wheel_metadata_filename": {
+                "$concat": [
+                    "$distribution", "-", "$version", ".dist-info/WHEEL"
+                ]
+            }
+        }
+    }, {
+        "$addFields": {
+            "has_wheel_metadata": {
+                "$in": [
+                    "$wheel_metadata_filename", "$files"
+                ]
+            }
+        }
+    }, {
+        "$addFields": {
+            "one": 1
+        }
+    }, {
+        "$group": {
+            "_id": "$has_wheel_metadata", 
+            "names": {
+                "$push": "$url"
+            }, 
+            "count": {
+                "$sum": "$one"
+            }
+        }
+    }
+]
