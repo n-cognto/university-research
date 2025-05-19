@@ -548,11 +548,39 @@
 <button id="scrollToTopBtn" title="Go to top">↑</button>
 
 <!-- Script includes -->
-<script src="{% static 'js/maps/map.js' %}"></script>
-<script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
+<script src="{% static 'js/maps/map.js' %}"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Fix for centerMap Windy iframe error -->
+<script>
+// This fixes the error: "Cannot read properties of null (reading 'src')"
+function centerMap(lat, lng, zoom) {
+  const iframe = document.getElementById('windy-map');
+  if (!iframe) {
+    console.warn('Windy map iframe not found, skipping centerMap operation');
+    return;
+  }
+  
+  const currentSrc = iframe.src;
+  
+  // Rest of the original centerMap function
+  // This will only execute if the iframe exists
+  if (lat && lng) {
+    const newUrl = currentSrc.replace(
+      /(center=)[^&]+/, 
+      `$1${lat},${lng}`
+    ).replace(
+      /(zoom=)[^&]+/, 
+      `$1${zoom || 9}`
+    );
+    
+    iframe.src = newUrl;
+  }
+}
+</script>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
