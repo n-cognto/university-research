@@ -82,7 +82,7 @@ function initializeMap() {
 function fetchStationData() {
     showLoadingIndicator();
     
-    fetch('/maps/api/stations/')
+    fetch('/api/stations/')  // Updated from '/maps/api/stations/' to match the actual API route
         .then(response => {
             if (!response.ok) {
                 throw new Error('Network response was not ok');
@@ -214,6 +214,9 @@ function createStationPopupContent(station) {
         statusClass = 'status-lost';
     }
     
+    // Extract numeric station ID if it has a prefix
+    const stationIdForUrl = station.id.startsWith('ws_') ? station.id.substring(3) : station.id;
+    
     // Create popup content
     const content = document.createElement('div');
     content.className = 'info-container';
@@ -241,7 +244,7 @@ function createStationPopupContent(station) {
         ` : ''}
         
         <div class="text-center">
-            <a href="/maps/stations/${station.id}/" class="btn btn-sm btn-success">
+            <a href="/maps/stations/${stationIdForUrl}/" class="btn btn-sm btn-success">
                 <i class="fas fa-chart-line me-1"></i> View Statistics
             </a>
         </div>
@@ -271,6 +274,9 @@ function createStationInfoCard(station) {
     const statusClass = station.status === 'active' ? 'text-success' : 
                         station.status === 'maintenance' ? 'text-warning' : 'text-danger';
     
+    // Extract numeric station ID if it has a prefix
+    const stationIdForUrl = station.id.startsWith('ws_') ? station.id.substring(3) : station.id;
+    
     card.innerHTML = `
         <div class="card station-card">
             <div class="card-header d-flex justify-content-between align-items-center">
@@ -287,7 +293,7 @@ function createStationInfoCard(station) {
                     <i class="fas fa-circle me-1"></i> ${station.status || 'Unknown'}
                 </p>
                 <div class="d-grid gap-2">
-                    <a href="/maps/stations/${station.id}/" class="btn btn-success station-stats-btn">
+                    <a href="/maps/stations/${stationIdForUrl}/" class="btn btn-success station-stats-btn">
                         <i class="fas fa-chart-line me-1"></i> View Statistics
                     </a>
                 </div>
