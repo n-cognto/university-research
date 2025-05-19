@@ -276,17 +276,12 @@ class StationViewSet(viewsets.ViewSet):
     
     def list(self, request):
         """Return a list of all stations with their location and status information"""
-        # Get weather stations
+        # Get weather stations only - avoiding field device tables
         weather_stations = WeatherStation.objects.all().annotate(
-            last_data_received=Max('weatherdata__timestamp')
+            last_data_received=Max('climate_data__timestamp')
         )
         
-        # Get field devices 
-        field_devices = FieldDevice.objects.all().annotate(
-            last_data_received=Max('fielddatarecord__timestamp')
-        )
-        
-        # Combine data from both sources
+        # Combine data from weather stations only
         stations = []
         
         # Process weather stations
@@ -302,38 +297,15 @@ class StationViewSet(viewsets.ViewSet):
                 'device_type': 'weather_station',
                 'latitude': station.latitude,
                 'longitude': station.longitude,
-                'location_name': station.location_description,
+                'location_name': station.location_description if hasattr(station, 'location_description') else '',
                 'status': 'active' if station.is_active else 'inactive',
                 'is_online': is_online,
                 'last_data_received': station.last_data_received,
-                'has_alerts': station.has_alerts if hasattr(station, 'has_alerts') else False,
-                'battery_level': station.battery_level if hasattr(station, 'battery_level') else None,
-                'signal_strength': station.signal_strength if hasattr(station, 'signal_strength') else None,
+                'has_alerts': False,  # Default value since we're not checking alerts
+                'battery_level': None,
+                'signal_strength': None,
                 'show_label': True
             })
         
-        # Process field devices
-        for device in field_devices:
-            is_online = device.status == 'active'
-            if device.last_communication:
-                time_diff = timezone.now() - device.last_communication
-                is_online = time_diff.total_seconds() < 86400  # 24 hours
-            
-            if device.location:
-                stations.append({
-                    'id': device.device_id,
-                    'name': device.name,
-                    'device_type': 'field_device',
-                    'latitude': device.location.y,  # GeoDjango Point stores lat in y
-                    'longitude': device.location.x, # GeoDjango Point stores lon in x
-                    'location_name': device.location_description if hasattr(device, 'location_description') else '',
-                    'status': device.status,
-                    'is_online': is_online,
-                    'last_data_received': device.last_communication,
-                    'has_alerts': False,  # Set default value
-                    'battery_level': device.battery_level if hasattr(device, 'battery_level') else None,
-                    'signal_strength': device.signal_strength if hasattr(device, 'signal_strength') else None,
-                    'show_label': True
-                })
-        
+        # Return only weather stations
         return Response(stations)

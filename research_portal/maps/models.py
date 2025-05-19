@@ -625,3 +625,19 @@ class WeatherAlert(models.Model):
     
     def __str__(self):
         return f"{self.get_severity_display()}: {self.title} ({self.station.name})"
+
+# Import field models at the end of the file to ensure Django recognizes them
+# This ensures all models are properly included in migrations
+
+# Import field-related models at the end of the file
+from .field_models import (
+    AlertType,
+    AlertSeverity,
+    Alert, 
+    DeviceType, 
+    FieldDevice, 
+    DeviceCalibration, 
+    FieldDataRecord, 
+    FieldDataUpload,
+    FieldDataUploadManual
+)
