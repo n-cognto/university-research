@@ -2179,15 +2179,25 @@ def station_statistics_view(request, station_id):
     View for displaying station statistics
     Can handle both numeric IDs (database stations) and string IDs (custom stations)
     """
-    # Check if station_id is a string ID for custom stations
-    if isinstance(station_id, str) or (isinstance(station_id, int) and station_id < 0):
-        # This is a custom station (like 'jooust-station', 'kisumu-station', etc.)
-        # We'll use the station_data_view to handle it
-        return redirect(f'/maps/station-data/?id={station_id}')
-    
-    # For regular database stations with numeric IDs
+    # Handle both numeric and string IDs
     try:
-        station = get_object_or_404(WeatherStation, id=station_id)
+        # First try to convert to int if it looks like a number
+        if isinstance(station_id, str) and station_id.isdigit():
+            numeric_id = int(station_id)
+            station = get_object_or_404(WeatherStation, id=numeric_id)
+        else:
+            # If it's already a number or a non-numeric string ID
+            if isinstance(station_id, str) and station_id.startswith('ws_'):
+                # Handle 'ws_X' format by extracting the number
+                numeric_part = station_id.split('_')[1]
+                if numeric_part.isdigit():
+                    station = get_object_or_404(WeatherStation, id=int(numeric_part))
+                else:
+                    # This is a custom station ID
+                    return redirect(f'/maps/station-data/?id={station_id}')
+            else:
+                # Regular numeric ID
+                station = get_object_or_404(WeatherStation, id=station_id)
         
         # Get climate data for this station
         recent_data = ClimateData.objects.filter(
@@ -2234,8 +2244,7 @@ def station_statistics_view(request, station_id):
 @login_required
 @permission_required('maps.add_climatedata')
 def stack_data_entry(request):
-    """View for adding climate data to a station's stack"""
-    
+    """View for adding climate data to a station's stack"""    
     stations = WeatherStation.objects.filter(is_active=True)
     
     if request.method == 'POST':
