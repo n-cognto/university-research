@@ -58,3 +58,5 @@ hypothesis/
 # Docker
 docker-compose.override.yml
 .envrc
+
+.idea
