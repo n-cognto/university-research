@@ -35,7 +35,7 @@ def extract_csv_metadata(file_obj, sample_size=10000):
     - Sample data
     
     Args:
-        file_obj: The file object to read
+        file_obj: The file object to read (handles both text and binary modes)
         sample_size: Number of bytes to sample for detection
         
     Returns:
@@ -59,7 +59,7 @@ def extract_csv_metadata(file_obj, sample_size=10000):
         sample = file_obj.read(sample_size)
         file_obj.seek(current_position)  # Reset file pointer
         
-        # Try to detect CSV structure
+        # Handle both text and binary file objects
         if isinstance(sample, bytes):
             encoding = detect_encoding(sample)
             sample_str = sample.decode(encoding, errors='replace')
@@ -90,13 +90,29 @@ def extract_csv_metadata(file_obj, sample_size=10000):
                 
         metadata['sample_rows'] = sample_rows
         
-        # Reset file pointer to analyze the entire file
+        # For row counting, we need to handle the file properly
         file_obj.seek(current_position)
         
-        # Count rows
-        row_count = 0
-        for _ in csv.reader(file_obj, dialect=dialect):
-            row_count += 1
+        # Handle binary vs text mode for row counting
+        if hasattr(file_obj, 'mode') and 'b' in file_obj.mode:
+            # Binary mode - decode first
+            content = file_obj.read().decode(encoding, errors='replace')
+            text_file = io.StringIO(content)
+            row_count = sum(1 for _ in csv.reader(text_file, dialect=dialect))
+        else:
+            # Text mode or file-like object
+            try:
+                # Try to read as text directly
+                content = file_obj.read()
+                if isinstance(content, bytes):
+                    content = content.decode(encoding, errors='replace')
+                text_file = io.StringIO(content)
+                row_count = sum(1 for _ in csv.reader(text_file, dialect=dialect))
+            except (UnicodeDecodeError, AttributeError):
+                # Fall back to line-by-line counting
+                file_obj.seek(current_position)
+                row_count = sum(1 for _ in file_obj)
+        
         metadata['row_count'] = row_count
         
         # Reset file pointer again
@@ -184,7 +200,7 @@ def csv_to_time_series_json(file_obj, time_column=None, value_columns=None):
     Convert a CSV file to a time series JSON format suitable for visualization.
     
     Args:
-        file_obj: The CSV file object
+        file_obj: The CSV file object (handles both text and binary modes)
         time_column: The name of the column containing timestamps
         value_columns: List of columns to extract as variables
         
@@ -212,8 +228,26 @@ def csv_to_time_series_json(file_obj, time_column=None, value_columns=None):
         # Reset file to start
         file_obj.seek(current_position)
         
-        # Read the CSV data
-        reader = csv.DictReader(file_obj)
+        # Handle both binary and text file objects
+        if hasattr(file_obj, 'mode') and 'b' in file_obj.mode:
+            # Binary mode - decode first
+            content = file_obj.read()
+            if isinstance(content, bytes):
+                encoding = detect_encoding(content)
+                content = content.decode(encoding, errors='replace')
+            text_file = io.StringIO(content)
+            reader = csv.DictReader(text_file)
+        else:
+            # Text mode or file-like object
+            content = file_obj.read()
+            if isinstance(content, bytes):
+                encoding = detect_encoding(content)
+                content = content.decode(encoding, errors='replace')
+                text_file = io.StringIO(content)
+                reader = csv.DictReader(text_file)
+            else:
+                file_obj.seek(current_position)
+                reader = csv.DictReader(file_obj)
         
         # Prepare result structure
         result = {
