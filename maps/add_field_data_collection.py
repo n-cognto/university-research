@@ -16,7 +16,6 @@ SQL_STATEMENTS = [
     ALTER TABLE maps_climatedata 
     ADD COLUMN data_source varchar(15) NOT NULL DEFAULT 'station';
     """,
-    
     # Create DeviceType table
     """
     CREATE TABLE maps_devicetype (
@@ -40,7 +39,6 @@ SQL_STATEMENTS = [
         updated_at timestamp with time zone NOT NULL
     );
     """,
-    
     # Create FieldDevice table
     """
     CREATE TABLE maps_fielddevice (
@@ -62,7 +60,6 @@ SQL_STATEMENTS = [
         weather_station_id integer NULL REFERENCES maps_weatherstation(id)
     );
     """,
-    
     # Create indexes for FieldDevice
     """
     CREATE INDEX maps_fielddevice_status_idx ON maps_fielddevice(status);
@@ -73,7 +70,6 @@ SQL_STATEMENTS = [
     """
     CREATE INDEX maps_fielddevice_weather_station_id_idx ON maps_fielddevice(weather_station_id);
     """,
-    
     # Create DeviceCalibration table
     """
     CREATE TABLE maps_devicecalibration (
@@ -91,7 +87,6 @@ SQL_STATEMENTS = [
         performed_by_id integer NULL REFERENCES auth_user(id)
     );
     """,
-    
     # Create FieldDataUpload table
     """
     CREATE TABLE maps_fielddataupload (
@@ -113,18 +108,19 @@ SQL_STATEMENTS = [
         uploader_id integer NULL REFERENCES auth_user(id),
         weather_station_id integer NOT NULL REFERENCES maps_weatherstation(id)
     );
-    """
+    """,
 ]
+
 
 def apply_migrations():
     """Apply the SQL migrations to add field data collection capabilities"""
     cursor = connection.cursor()
     success_count = 0
     error_count = 0
-    
+
     print("\n===== FIELD DATA COLLECTION MIGRATION =====\n")
     print(f"Found {len(SQL_STATEMENTS)} SQL statements to execute.\n")
-    
+
     for i, sql in enumerate(SQL_STATEMENTS):
         statement_name = f"Statement {i+1}/{len(SQL_STATEMENTS)}"
         if "ADD COLUMN data_source" in sql:
@@ -139,7 +135,7 @@ def apply_migrations():
             statement_name = "Creating DeviceCalibration table"
         elif "CREATE TABLE maps_fielddataupload" in sql:
             statement_name = "Creating FieldDataUpload table"
-            
+
         print(f"Executing: {statement_name}...")
         try:
             cursor.execute(sql)
@@ -155,12 +151,15 @@ def apply_migrations():
                 error_count += 1
             # Continue with other statements even if one fails
             connection.rollback()
-    
+
     print(f"\n===== MIGRATION SUMMARY =====")
     print(f"Total statements: {len(SQL_STATEMENTS)}")
     print(f"Successfully executed: {success_count}")
     print(f"Errors: {error_count}")
-    print(f"Migration {'completed successfully' if error_count == 0 else 'completed with errors'}.\n")
+    print(
+        f"Migration {'completed successfully' if error_count == 0 else 'completed with errors'}.\n"
+    )
+
 
 if __name__ == "__main__":
     apply_migrations()

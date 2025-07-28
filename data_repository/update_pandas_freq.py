@@ -6,6 +6,7 @@ import os
 import re
 import sys
 
+
 def find_and_replace_frequencies(start_dir):
     """Find and replace deprecated pandas frequencies in Python files"""
     replacements = [
@@ -16,27 +17,28 @@ def find_and_replace_frequencies(start_dir):
         (r"freq='YE'", r"freq='YE'"),  # Year end
         (r'freq="YE"', r'freq="YE"'),  # Year end
     ]
-    
+
     for root, dirs, files in os.walk(start_dir):
         for file in files:
-            if file.endswith('.py'):
+            if file.endswith(".py"):
                 filepath = os.path.join(root, file)
                 try:
-                    with open(filepath, 'r') as f:
+                    with open(filepath, "r") as f:
                         content = f.read()
-                    
+
                     modified = False
                     for pattern, replacement in replacements:
                         if re.search(pattern, content):
                             content = re.sub(pattern, replacement, content)
                             modified = True
-                    
+
                     if modified:
                         print(f"Updating pandas frequencies in: {filepath}")
-                        with open(filepath, 'w') as f:
+                        with open(filepath, "w") as f:
                             f.write(content)
                 except Exception as e:
                     print(f"Error processing {filepath}: {e}")
+
 
 if __name__ == "__main__":
     project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

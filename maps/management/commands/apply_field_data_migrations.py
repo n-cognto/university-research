@@ -2,8 +2,9 @@ from django.core.management.base import BaseCommand
 from django.db import connection
 from django.db.utils import IntegrityError, ProgrammingError
 
+
 class Command(BaseCommand):
-    help = 'Applies SQL migrations for field data collection features'
+    help = "Applies SQL migrations for field data collection features"
 
     def handle(self, *args, **options):
         # SQL statements to create the new tables and add fields to existing tables
@@ -13,7 +14,6 @@ class Command(BaseCommand):
             ALTER TABLE maps_climatedata 
             ADD COLUMN data_source varchar(15) NOT NULL DEFAULT 'station';
             """,
-            
             # Create DeviceType table
             """
             CREATE TABLE maps_devicetype (
@@ -37,7 +37,6 @@ class Command(BaseCommand):
                 updated_at timestamp with time zone NOT NULL
             );
             """,
-            
             # Create FieldDevice table
             """
             CREATE TABLE maps_fielddevice (
@@ -59,7 +58,6 @@ class Command(BaseCommand):
                 weather_station_id integer NULL REFERENCES maps_weatherstation(id)
             );
             """,
-            
             # Create indexes for FieldDevice
             """
             CREATE INDEX maps_fielddevice_status_idx ON maps_fielddevice(status);
@@ -70,7 +68,6 @@ class Command(BaseCommand):
             """
             CREATE INDEX maps_fielddevice_weather_station_id_idx ON maps_fielddevice(weather_station_id);
             """,
-            
             # Create DeviceCalibration table
             """
             CREATE TABLE maps_devicecalibration (
@@ -88,7 +85,6 @@ class Command(BaseCommand):
                 performed_by_id integer NULL REFERENCES auth_user(id)
             );
             """,
-            
             # Create FieldDataUpload table
             """
             CREATE TABLE maps_fielddataupload (
@@ -110,16 +106,18 @@ class Command(BaseCommand):
                 uploader_id integer NULL REFERENCES auth_user(id),
                 weather_station_id integer NOT NULL REFERENCES maps_weatherstation(id)
             );
-            """
+            """,
         ]
 
         cursor = connection.cursor()
         success_count = 0
         error_count = 0
-        
-        self.stdout.write(self.style.SUCCESS("\n===== FIELD DATA COLLECTION MIGRATION =====\n"))
+
+        self.stdout.write(
+            self.style.SUCCESS("\n===== FIELD DATA COLLECTION MIGRATION =====\n")
+        )
         self.stdout.write(f"Found {len(SQL_STATEMENTS)} SQL statements to execute.\n")
-        
+
         for i, sql in enumerate(SQL_STATEMENTS):
             statement_name = f"Statement {i+1}/{len(SQL_STATEMENTS)}"
             if "ADD COLUMN data_source" in sql:
@@ -134,25 +132,39 @@ class Command(BaseCommand):
                 statement_name = "Creating DeviceCalibration table"
             elif "CREATE TABLE maps_fielddataupload" in sql:
                 statement_name = "Creating FieldDataUpload table"
-                
+
             self.stdout.write(f"Executing: {statement_name}...")
             try:
                 cursor.execute(sql)
                 connection.commit()
-                self.stdout.write(self.style.SUCCESS(f"✅ {statement_name} executed successfully."))
+                self.stdout.write(
+                    self.style.SUCCESS(f"✅ {statement_name} executed successfully.")
+                )
                 success_count += 1
             except (IntegrityError, ProgrammingError) as e:
                 error_message = str(e)
                 if "already exists" in error_message:
-                    self.stdout.write(self.style.WARNING(f"⚠️ {statement_name} skipped: {error_message}"))
+                    self.stdout.write(
+                        self.style.WARNING(
+                            f"⚠️ {statement_name} skipped: {error_message}"
+                        )
+                    )
                 else:
-                    self.stdout.write(self.style.ERROR(f"❌ Error executing {statement_name}: {error_message}"))
+                    self.stdout.write(
+                        self.style.ERROR(
+                            f"❌ Error executing {statement_name}: {error_message}"
+                        )
+                    )
                     error_count += 1
                 # Continue with other statements even if one fails
                 connection.rollback()
-        
+
         self.stdout.write(self.style.SUCCESS(f"\n===== MIGRATION SUMMARY ====="))
         self.stdout.write(f"Total statements: {len(SQL_STATEMENTS)}")
         self.stdout.write(f"Successfully executed: {success_count}")
         self.stdout.write(f"Errors: {error_count}")
-        self.stdout.write(self.style.SUCCESS(f"Migration {'completed successfully' if error_count == 0 else 'completed with errors'}.\n"))
+        self.stdout.write(
+            self.style.SUCCESS(
+                f"Migration {'completed successfully' if error_count == 0 else 'completed with errors'}.\n"
+            )
+        )

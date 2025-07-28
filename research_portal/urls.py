@@ -28,36 +28,61 @@ from maps.field_device_api import device_data_upload
 import research_portal.admin
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('maps/', include('maps.urls', namespace='maps')),
+    path("admin/", admin.site.urls),
+    path("maps/", include("maps.urls", namespace="maps")),
     # We should NOT include maps.urls at the root - that was causing the duplicate/confused URLs
     # path('', include('maps.urls')), # Remove this line
-    path('', include('research.urls')),
-    path('', include('profiles.urls', namespace='profiles')),
+    path("", include("research.urls")),
+    path("", include("profiles.urls", namespace="profiles")),
     # Remove this duplicate include - it's already included with namespace above
     # path('', include('maps.urls')),
-    path('repository/', include('data_repository.urls', namespace='repository')),
-    
+    path("repository/", include("data_repository.urls", namespace="repository")),
     # Add integration URLs for combined maps and data repository access
-    path('integrated/', include('integration.urls', namespace='integration')),
-    
-    path('api-auth/', include('rest_framework.urls')),
-    path('logout/', logout_view, name='logout'),
-    
+    path("integrated/", include("integration.urls", namespace="integration")),
+    path("api-auth/", include("rest_framework.urls")),
+    path("logout/", logout_view, name="logout"),
     # Add direct API endpoints for data repository
-    path('api/version/<int:version_id>/variables/', data_repository_views.api_version_variables, name='api_version_variables'),
-    path('api/dataset-version/<int:version_id>/time-series-data/', data_repository_views.get_time_series_data, name='api_time_series_data'),
-    
+    path(
+        "api/version/<int:version_id>/variables/",
+        data_repository_views.api_version_variables,
+        name="api_version_variables",
+    ),
+    path(
+        "api/dataset-version/<int:version_id>/time-series-data/",
+        data_repository_views.get_time_series_data,
+        name="api_time_series_data",
+    ),
     # Direct endpoint for field device data uploads
-    path('api/field-data-uploads/upload_data/', device_data_upload, name='field_data_upload_direct'),
-    
+    path(
+        "api/field-data-uploads/upload_data/",
+        device_data_upload,
+        name="field_data_upload_direct",
+    ),
     # Add API fallback redirects to fix 404 errors
-    path('api/weather-stations/', RedirectView.as_view(url='/maps/api/weather-stations/', permanent=False)),
-    path('api/map-data/', RedirectView.as_view(url='/maps/api/map-data/', permanent=False)),
-    path('api/climate-data/', RedirectView.as_view(url='/maps/api/climate-data/', permanent=False)),
-    path('api/climate-data/recent/', RedirectView.as_view(url='/maps/api/climate-data/recent/', permanent=False)),
-    path('api/stations/', RedirectView.as_view(url='/maps/api/stations/', permanent=False)),
-    path('debug_stations/', RedirectView.as_view(url='/maps/debug_stations/', permanent=False)),
+    path(
+        "api/weather-stations/",
+        RedirectView.as_view(url="/maps/api/weather-stations/", permanent=False),
+    ),
+    path(
+        "api/map-data/",
+        RedirectView.as_view(url="/maps/api/map-data/", permanent=False),
+    ),
+    path(
+        "api/climate-data/",
+        RedirectView.as_view(url="/maps/api/climate-data/", permanent=False),
+    ),
+    path(
+        "api/climate-data/recent/",
+        RedirectView.as_view(url="/maps/api/climate-data/recent/", permanent=False),
+    ),
+    path(
+        "api/stations/",
+        RedirectView.as_view(url="/maps/api/stations/", permanent=False),
+    ),
+    path(
+        "debug_stations/",
+        RedirectView.as_view(url="/maps/debug_stations/", permanent=False),
+    ),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 # Serve media files in development
